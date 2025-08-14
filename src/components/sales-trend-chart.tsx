@@ -1,7 +1,7 @@
 "use client";
 
 import type { SalesByPeriod } from '@/lib/types';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Line, LineChart } from 'recharts';
+import { CartesianGrid, XAxis, Tooltip, ResponsiveContainer, Line, LineChart, YAxis } from 'recharts';
 import { ChartTooltipContent, ChartContainer } from '@/components/ui/chart';
 
 interface SalesTrendChartProps {
@@ -17,7 +17,7 @@ export function SalesTrendChart({ data }: SalesTrendChartProps) {
         }
     }}>
       <ResponsiveContainer width="100%" height={350}>
-        <LineChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+        <LineChart data={data} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis 
             dataKey="date" 
@@ -27,11 +27,9 @@ export function SalesTrendChart({ data }: SalesTrendChartProps) {
             tickFormatter={(value) => value.slice(0, 5)}
           />
           <YAxis 
-            tickFormatter={(value) => `R$${value / 1000}k`}
+            tick={false}
             tickLine={false}
             axisLine={false}
-            tickMargin={8}
-            width={80}
           />
           <Tooltip cursor={false} content={<ChartTooltipContent indicator="line" formatter={(value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value as number)} />} />
           <Line
