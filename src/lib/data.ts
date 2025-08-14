@@ -10,7 +10,7 @@ import type {
   SearchParams,
   DateRange,
 } from './types';
-import { subDays, startOfMonth, endOfMonth, format, parse, eachDayOfInterval } from 'date-fns';
+import { subDays, startOfMonth, endOfMonth, format, parse, eachDayOfInterval, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 // This is a static data source. In a real application, you would fetch this from an API.
@@ -44,8 +44,9 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
 const allSales = processRawSalesData(rawSalesData);
 
 function getDateRange(searchParams: SearchParams): DateRange {
-  const from = searchParams.from ? parse(searchParams.from as string, 'yyyy-MM-dd', new Date()) : startOfMonth(new Date());
-  const to = searchParams.to ? parse(searchParams.to as string, 'yyyy-MM-dd', new Date()) : endOfMonth(new Date());
+  const today = new Date();
+  const from = searchParams.from ? parseISO(searchParams.from as string) : startOfMonth(today);
+  const to = searchParams.to ? parseISO(searchParams.to as string) : endOfMonth(today);
   return { from, to };
 }
 
@@ -69,6 +70,7 @@ export function calculateKpis(sales: ProcessedSale[]): Kpi {
 
 export function getSalesByPeriod(sales: ProcessedSale[]): SalesByPeriod[] {
   if (sales.length === 0) return [];
+
   const salesByDate = sales.reduce((acc, sale) => {
     const dateStr = format(sale.purchaseDate, 'yyyy-MM-dd');
     if (!acc[dateStr]) {
@@ -77,10 +79,12 @@ export function getSalesByPeriod(sales: ProcessedSale[]): SalesByPeriod[] {
     acc[dateStr] += sale.saleValue;
     return acc;
   }, {} as Record<string, number>);
-
-  const minDate = sales.reduce((min, sale) => sale.purchaseDate < min ? sale.purchaseDate : min, new Date());
-  const maxDate = sales.reduce((max, sale) => sale.purchaseDate > max ? sale.purchaseDate : max, new Date(0));
   
+  const minDate = sales.reduce((min, sale) => (sale.purchaseDate < min ? sale.purchaseDate : min), new Date());
+  const maxDate = sales.reduce((max, sale) => (sale.purchaseDate > max ? sale.purchaseDate : max), new Date(0));
+  
+  if (minDate > maxDate) return [];
+
   const dateInterval = eachDayOfInterval({ start: minDate, end: maxDate });
 
   return dateInterval.map(day => {
