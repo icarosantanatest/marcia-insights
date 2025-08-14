@@ -8,12 +8,12 @@ export type Sale = {
   Celular: string;
   Produto_comprado: string;
   Codigo_do_Produto: string;
-  Valor_Venda: number;
+  Valor_Venda: number | string;
   Moeda: string;
-  Comissao: number;
+  Comissao: number | string;
   Parcelas: number;
   Forma_de_Pagamento: string;
-  Order_bump: boolean;
+  Order_bump: boolean | string;
   Estado: string;
   Pais: string;
   Utm_Source: string;
@@ -35,7 +35,7 @@ export type ProcessedSale = {
   commission: number;
   installments: number;
   paymentMethod: string;
-  hasOrderBump: boolean;
+  hasOrderBump: boolean | string;
   state: string;
   country: string;
   utmSource: string;

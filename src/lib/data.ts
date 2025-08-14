@@ -29,8 +29,8 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
       buyerName: d.Nome_do_Comprador,
       email: d.Email,
       productName: d.Produto_comprado.trim(),
-      saleValue: Number(d.Valor_Venda) || 0,
-      commission: Number(d.Comissao) || 0,
+      saleValue: Number(String(d.Valor_Venda).replace(',', '.')) || 0,
+      commission: Number(String(d.Comissao).replace(',', '.')) || 0,
       installments: d.Parcelas,
       paymentMethod: d.Forma_de_Pagamento,
       hasOrderBump: d.Order_bump,
@@ -80,12 +80,16 @@ export function getSalesByPeriod(sales: ProcessedSale[]): SalesByPeriod[] {
     return acc;
   }, {} as Record<string, number>);
   
-  const minDate = sales.reduce((min, sale) => (sale.purchaseDate < min ? sale.purchaseDate : min), new Date());
-  const maxDate = sales.reduce((max, sale) => (sale.purchaseDate > max ? sale.purchaseDate : max), new Date(0));
+  const dateRange = sales.reduce((acc, sale) => {
+      return {
+          min: sale.purchaseDate < acc.min ? sale.purchaseDate : acc.min,
+          max: sale.purchaseDate > acc.max ? sale.purchaseDate : acc.max
+      }
+  }, {min: new Date(), max: new Date(0)});
   
-  if (minDate > maxDate) return [];
+  if (dateRange.min > dateRange.max) return [];
 
-  const dateInterval = eachDayOfInterval({ start: minDate, end: maxDate });
+  const dateInterval = eachDayOfInterval({ start: dateRange.min, end: dateRange.max });
 
   return dateInterval.map(day => {
     const dateStr = format(day, 'yyyy-MM-dd');
