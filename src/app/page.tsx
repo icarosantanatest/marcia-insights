@@ -1,3 +1,88 @@
-export default function Home() {
-  return <></>;
+import {
+  getSalesData,
+  calculateKpis,
+  getSalesByPeriod,
+  getSalesByProduct,
+  getSalesByState,
+  getSalesByAcquisition,
+  getSalesByPaymentMethod,
+} from '@/lib/data';
+import type { SearchParams } from '@/lib/types';
+import { KpiCard } from '@/components/kpi-card';
+import { SalesTrendChart } from '@/components/sales-trend-chart';
+import { ProductDistributionChart } from '@/components/product-distribution-chart';
+import { GeographicSalesChart } from '@/components/geographic-sales-chart';
+import { ROISuggestions } from '@/components/roi-suggestions';
+import { DashboardFilters } from '@/components/dashboard-filters';
+import { AcquisitionChannelsChart } from '@/components/acquisition-channels-chart';
+import { PaymentMethodsChart } from '@/components/payment-methods-chart';
+
+import { DollarSign, ShoppingCart, Wallet, BadgePercent, BarChart } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const { allSales, filteredSales, dateRange } = await getSalesData(searchParams);
+
+  const kpis = calculateKpis(filteredSales);
+  const salesByPeriod = getSalesByPeriod(filteredSales);
+  const salesByProduct = getSalesByProduct(filteredSales);
+  const salesByState = getSalesByState(filteredSales);
+  const salesByAcquisition = getSalesByAcquisition(filteredSales);
+  const salesByPaymentMethod = getSalesByPaymentMethod(filteredSales);
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+  return (
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
+        <h1 className="text-2xl font-headline font-semibold">Márcia Insights</h1>
+        <div className="ml-auto">
+          <DashboardFilters defaultDateRange={dateRange} />
+        </div>
+      </header>
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+          <KpiCard title="Faturamento Total" value={formatCurrency(kpis.totalRevenue)} icon={DollarSign} />
+          <KpiCard title="Comissão Líquida" value={formatCurrency(kpis.netCommission)} icon={Wallet} />
+          <KpiCard title="Vendas" value={kpis.salesCount.toString()} icon={ShoppingCart} />
+          <KpiCard title="Ticket Médio" value={formatCurrency(kpis.averageTicket)} icon={BadgePercent} />
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-7">
+          <Card className="lg:col-span-4">
+            <CardHeader>
+              <CardTitle>Vendas por Período</CardTitle>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <SalesTrendChart data={salesByPeriod} />
+            </CardContent>
+          </Card>
+          <Card className="lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Distribuição por Produtos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProductDistributionChart data={salesByProduct} />
+            </CardContent>
+          </Card>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:gap-8 lg:grid-cols-3">
+            <GeographicSalesChart data={salesByState} />
+            <AcquisitionChannelsChart data={salesByAcquisition} />
+            <PaymentMethodsChart data={salesByPaymentMethod} />
+        </div>
+        <Card>
+          <CardHeader>
+              <div className="flex items-center gap-2">
+                <BarChart className="h-6 w-6" />
+                <CardTitle className="font-headline">Análise de ROI de Campanhas com IA</CardTitle>
+              </div>
+          </CardHeader>
+          <CardContent>
+            <ROISuggestions sales={allSales} />
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
 }
