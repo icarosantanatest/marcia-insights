@@ -20,25 +20,31 @@ const rawSalesData: Sale[] = salesDataJson;
 
 function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
   return rawData
-    .filter(d => d.Status === 'aprovada' && d.Valor_Venda > 0)
-    .map(d => ({
-      purchaseDate: parse(d.Data_da_compra, 'dd-MM-yyyy', new Date()),
-      transactionId: d.transacao_prod,
-      status: d.Status,
-      platform: d.Plataforma,
-      buyerName: d.Nome_do_Comprador,
-      email: d.Email,
-      productName: d.Produto_comprado.trim(),
-      saleValue: Number(String(d.Valor_Venda).replace(',', '.')) || 0,
-      commission: Number(String(d.Comissao).replace(',', '.')) || 0,
-      installments: d.Parcelas,
-      paymentMethod: d.Forma_de_Pagamento,
-      hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true || d.Order_bump === 'TRUE',
-      state: d.Estado,
-      country: d.Pais,
-      utmSource: d.Utm_Source,
-      utmCampaign: d.Utm_Campaign,
-    }));
+    .filter(d => d.Status === 'aprovada')
+    .map(d => {
+      const saleValue = Number(String(d.Valor_Venda).replace(',', '.')) || 0;
+      if (saleValue <= 0) return null;
+
+      return {
+        purchaseDate: parse(d.Data_da_compra, 'dd-MM-yyyy', new Date()),
+        transactionId: d.transacao_prod,
+        status: d.Status,
+        platform: d.Plataforma,
+        buyerName: d.Nome_do_Comprador,
+        email: d.Email,
+        productName: d.Produto_comprado.trim(),
+        saleValue: saleValue,
+        commission: Number(String(d.Comissao).replace(',', '.')) || 0,
+        installments: d.Parcelas,
+        paymentMethod: d.Forma_de_Pagamento,
+        hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true || d.Order_bump === 'TRUE',
+        state: d.Estado,
+        country: d.Pais,
+        utmSource: d.Utm_Source,
+        utmCampaign: d.Utm_Campaign,
+      }
+    })
+    .filter((d): d is ProcessedSale => d !== null);
 }
 
 const allSales = processRawSalesData(rawSalesData);
