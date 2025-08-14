@@ -52,8 +52,15 @@ const allSales = processRawSalesData(rawSalesData);
 
 function getDateRange(searchParams: SearchParams): DateRange {
   const today = new Date();
-  const from = searchParams.from ? parseISO(searchParams.from as string) : startOfMonth(today);
-  const to = searchParams.to ? parseISO(searchParams.to as string) : endOfMonth(today);
+  let from: Date, to: Date;
+
+  if (searchParams.from && searchParams.to) {
+      from = parseISO(searchParams.from as string);
+      to = parseISO(searchParams.to as string);
+  } else {
+      from = startOfMonth(today);
+      to = endOfMonth(today);
+  }
   return { from, to };
 }
 
@@ -151,7 +158,7 @@ export function getSalesByState(sales: ProcessedSale[]): SalesByState[] {
 
 export function getSalesByAcquisition(sales: ProcessedSale[]): SalesByAcquisition[] {
   const salesBySource = sales.reduce((acc, sale) => {
-    const source = sale.utmSource || 'Direto/Outros';
+    const source = sale.utmSource || '-';
     const medium = sale.utmMedium || '-';
     const campaign = sale.utmCampaign || '-';
     const key = `${source}|${medium}|${campaign}`;
