@@ -3,7 +3,7 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useState, useEffect } from 'react';
-import { format, subDays, startOfMonth, endOfMonth, parseISO } from 'date-fns';
+import { format, subDays, startOfMonth, endOfMonth, parseISO, startOfToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { DateRange as DayPickerDateRange } from 'react-day-picker';
 import { Calendar as CalendarIcon } from 'lucide-react';
@@ -18,7 +18,6 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isClient, setIsClient] = useState(false);
-  const [currentDate, setCurrentDate] = useState(() => new Date());
   const [date, setDate] = useState<DayPickerDateRange | undefined>({
     from: defaultDateRange.from,
     to: defaultDateRange.to,
@@ -27,7 +26,6 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
 
   useEffect(() => {
     setIsClient(true);
-    setCurrentDate(new Date());
     const fromParam = searchParams.get('from');
     const toParam = searchParams.get('to');
     if (fromParam && toParam) {
@@ -67,20 +65,14 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
   }
 
   const isActive = (from: Date, to: Date) => {
-    if (!isClient) return false;
-
-    const fromParam = searchParams.get('from');
-    const toParam = searchParams.get('to');
-
-    if (!fromParam || !toParam) return false;
-
-    return format(parseISO(fromParam), 'yyyy-MM-dd') === format(from, 'yyyy-MM-dd') &&
-           format(parseISO(toParam), 'yyyy-MM-dd') === format(to, 'yyyy-MM-dd');
+    if (!date?.from || !date?.to) return false;
+    return format(date.from, 'yyyy-MM-dd') === format(from, 'yyyy-MM-dd') &&
+           format(date.to, 'yyyy-MM-dd') === format(to, 'yyyy-MM-dd');
   };
   
   const presets = [
-    { label: 'Este Mês', from: startOfMonth(currentDate), to: endOfMonth(currentDate) },
-    { label: 'Últimos 7 dias', from: subDays(currentDate, 6), to: currentDate },
+    { label: 'Este Mês', from: startOfMonth(new Date()), to: endOfMonth(new Date()) },
+    { label: 'Últimos 7 dias', from: subDays(new Date(), 6), to: new Date() },
   ];
 
   if (!isClient) {
@@ -105,10 +97,11 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
         <PopoverTrigger asChild>
             <Button
                 id="date"
-                variant={isCustomRangeActive ? 'default' : 'outline'}
+                variant={'outline'}
                 size="sm"
                 className={cn(
-                'w-[260px] justify-start text-left font-normal'
+                'w-[260px] justify-start text-left font-normal',
+                 isCustomRangeActive && "border-primary text-primary"
                 )}
             >
                 <CalendarIcon className="mr-2 h-4 w-4" />
@@ -153,3 +146,4 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
     </div>
   );
 }
+
