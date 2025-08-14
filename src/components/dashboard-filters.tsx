@@ -12,9 +12,12 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isClient, setIsClient] = useState(false);
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     setIsClient(true);
+    // Set 'now' only on the client to ensure consistency
+    setNow(new Date());
   }, []);
 
   const createQueryString = useCallback(
@@ -33,28 +36,28 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
   };
 
   const isActive = (from: Date, to: Date) => {
+    // Ensure defaultDateRange is client-side consistent before comparing
+    if (!isClient) return false;
     return format(defaultDateRange.from, 'yyyy-MM-dd') === format(from, 'yyyy-MM-dd') &&
            format(defaultDateRange.to, 'yyyy-MM-dd') === format(to, 'yyyy-MM-dd');
   };
+  
+  const presets = [
+    { label: 'Este Mês', from: startOfMonth(now), to: endOfMonth(now) },
+    { label: 'Últimos 7 dias', from: subDays(now, 6), to: now },
+    { label: 'Últimos 30 dias', from: subDays(now, 29), to: now },
+    { label: 'Últimos 90 dias', from: subDays(now, 89), to: now },
+  ];
 
   if (!isClient) {
       return (
         <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="hidden md:inline-flex" disabled>Este Mês</Button>
-            <Button variant="outline" size="sm" className="hidden md:inline-flex" disabled>Últimos 7 dias</Button>
-            <Button variant="outline" size="sm" className="hidden md:inline-flex" disabled>Últimos 30 dias</Button>
-            <Button variant="outline" size="sm" className="hidden md:inline-flex" disabled>Últimos 90 dias</Button>
+            {presets.map(({label}) => (
+              <Button key={label} variant="outline" size="sm" className="hidden md:inline-flex" disabled>{label}</Button>
+            ))}
         </div>
       )
   }
-
-  const today = new Date();
-  const presets = [
-    { label: 'Este Mês', from: startOfMonth(today), to: endOfMonth(today) },
-    { label: 'Últimos 7 dias', from: subDays(today, 6), to: today },
-    { label: 'Últimos 30 dias', from: subDays(today, 29), to: today },
-    { label: 'Últimos 90 dias', from: subDays(today, 89), to: today },
-  ];
 
   return (
     <div className="flex items-center gap-2">
@@ -64,7 +67,7 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
           variant={isActive(from, to) ? 'default' : 'outline'}
           size="sm"
           onClick={() => handleDateChange(from, to)}
-          className={cn(!isActive(from, to) && "hidden md:inline-flex")}
+          className={cn((!isActive(from, to) && label !== 'Este Mês') && "hidden md:inline-flex")}
         >
           {label}
         </Button>

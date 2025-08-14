@@ -1,7 +1,7 @@
 
 [
   {
-    "Data_da_compra": "31-05-2025",
+    "Data_da_compra": "31-05-2024",
     "transacao_prod": "HP1418642808_1815302",
     "Status": "aprovada",
     "Plataforma": "HOTMART",
@@ -25,7 +25,7 @@
     "Utm_Content": ""
   },
   {
-    "Data_da_compra": "03-06-2025",
+    "Data_da_compra": "03-06-2024",
     "transacao_prod": "HP3173322198_4047409",
     "Status": "aprovada",
     "Plataforma": "HOTMART",
@@ -49,7 +49,7 @@
     "Utm_Content": ""
   },
     {
-    "Data_da_compra": "15-06-2025",
+    "Data_da_compra": "15-06-2024",
     "transacao_prod": "HP123456789_1815302",
     "Status": "aprovada",
     "Plataforma": "HOTMART",
@@ -73,7 +73,7 @@
     "Utm_Content": "post_video"
   },
   {
-    "Data_da_compra": "18-06-2025",
+    "Data_da_compra": "18-06-2024",
     "transacao_prod": "TMB_987654321",
     "Status": "aprovada",
     "Plataforma": "TMB",
@@ -97,7 +97,7 @@
     "Utm_Content": "ad_imagem_01"
   },
   {
-    "Data_da_compra": "21-06-2025",
+    "Data_da_compra": "21-06-2024",
     "transacao_prod": "HP_246813579",
     "Status": "cancelada",
     "Plataforma": "HOTMART",
@@ -121,7 +121,7 @@
     "Utm_Content": ""
   },
   {
-    "Data_da_compra": "25-06-2025",
+    "Data_da_compra": "25-06-2024",
     "transacao_prod": "SELLER_11223344",
     "Status": "aprovada",
     "Plataforma": "SELLER",
@@ -145,7 +145,7 @@
     "Utm_Content": ""
   },
   {
-    "Data_da_compra": "01-07-2025",
+    "Data_da_compra": "01-07-2024",
     "transacao_prod": "HP_135792468",
     "Status": "aprovada",
     "Plataforma": "HOTMART",
@@ -169,7 +169,7 @@
     "Utm_Content": "stories_link"
   },
     {
-    "Data_da_compra": "05-07-2025",
+    "Data_da_compra": "05-07-2024",
     "transacao_prod": "TMB_543216789",
     "Status": "aprovada",
     "Plataforma": "TMB",
@@ -193,7 +193,7 @@
     "Utm_Content": "ad_video_02"
   },
   {
-    "Data_da_compra": "10-07-2025",
+    "Data_da_compra": "10-07-2024",
     "transacao_prod": "HP_987654321_JUL",
     "Status": "aprovada",
     "Plataforma": "HOTMART",
@@ -217,7 +217,7 @@
     "Utm_Content": ""
   },
   {
-    "Data_da_compra": "12-07-2025",
+    "Data_da_compra": "12-07-2024",
     "transacao_prod": "HP_192837465_JUL",
     "Status": "aprovada",
     "Plataforma": "HOTMART",
@@ -241,7 +241,7 @@
     "Utm_Content": ""
   },
   {
-    "Data_da_compra": "20-07-2025",
+    "Data_da_compra": "20-07-2024",
     "transacao_prod": "TMB_876543210",
     "Status": "aprovada",
     "Plataforma": "TMB",
@@ -265,7 +265,7 @@
     "Utm_Content": ""
   },
   {
-    "Data_da_compra": "28-07-2025",
+    "Data_da_compra": "28-07-2024",
     "transacao_prod": "HP_112358132",
     "Status": "aprovada",
     "Plataforma": "HOTMART",
