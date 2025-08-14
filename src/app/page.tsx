@@ -12,16 +12,15 @@ import { KpiCard } from '@/components/kpi-card';
 import { SalesTrendChart } from '@/components/sales-trend-chart';
 import { ProductDistributionChart } from '@/components/product-distribution-chart';
 import { GeographicSalesChart } from '@/components/geographic-sales-chart';
-import { ROISuggestions } from '@/components/roi-suggestions';
 import { DashboardFilters } from '@/components/dashboard-filters';
 import { AcquisitionChannelsChart } from '@/components/acquisition-channels-chart';
 import { PaymentMethodsChart } from '@/components/payment-methods-chart';
 
-import { DollarSign, ShoppingCart, Wallet, BadgePercent, BarChart } from 'lucide-react';
+import { DollarSign, ShoppingCart, Wallet, BadgePercent } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
-  const { allSales, filteredSales, dateRange } = await getSalesData(searchParams);
+  const { filteredSales, dateRange } = await getSalesData(searchParams);
 
   const kpis = calculateKpis(filteredSales);
   const salesByPeriod = getSalesByPeriod(filteredSales);
@@ -71,17 +70,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             <AcquisitionChannelsChart data={salesByAcquisition} />
             <PaymentMethodsChart data={salesByPaymentMethod} />
         </div>
-        <Card>
-          <CardHeader>
-              <div className="flex items-center gap-2">
-                <BarChart className="h-6 w-6" />
-                <CardTitle className="font-headline">Análise de ROI de Campanhas com IA</CardTitle>
-              </div>
-          </CardHeader>
-          <CardContent>
-            <ROISuggestions sales={allSales} />
-          </CardContent>
-        </Card>
       </main>
     </div>
   );
