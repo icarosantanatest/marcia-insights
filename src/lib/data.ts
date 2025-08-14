@@ -33,7 +33,7 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
       commission: Number(String(d.Comissao).replace(',', '.')) || 0,
       installments: d.Parcelas,
       paymentMethod: d.Forma_de_Pagamento,
-      hasOrderBump: d.Order_bump,
+      hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true,
       state: d.Estado,
       country: d.Pais,
       utmSource: d.Utm_Source,
