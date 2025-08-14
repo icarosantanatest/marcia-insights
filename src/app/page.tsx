@@ -3,7 +3,6 @@ import {
   calculateKpis,
   getSalesByPeriod,
   getSalesByProduct,
-  getSalesByState,
   getSalesByAcquisition,
   getSalesByPaymentMethod,
 } from '@/lib/data';
@@ -11,10 +10,9 @@ import type { SearchParams } from '@/lib/types';
 import { KpiCard } from '@/components/kpi-card';
 import { SalesTrendChart } from '@/components/sales-trend-chart';
 import { ProductDistributionChart } from '@/components/product-distribution-chart';
-import { GeographicSalesChart } from '@/components/geographic-sales-chart';
 import { DashboardFilters } from '@/components/dashboard-filters';
-import { AcquisitionChannelsChart } from '@/components/acquisition-channels-chart';
-import { PaymentMethodsChart } from '@/components/payment-methods-chart';
+import { AcquisitionChannelsTable } from '@/components/acquisition-channels-table';
+import { PaymentMethodsTable } from '@/components/payment-methods-table';
 
 import { DollarSign, ShoppingCart, Wallet, BadgePercent } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +23,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   const kpis = calculateKpis(filteredSales);
   const salesByPeriod = getSalesByPeriod(filteredSales);
   const salesByProduct = getSalesByProduct(filteredSales);
-  const salesByState = getSalesByState(filteredSales);
   const salesByAcquisition = getSalesByAcquisition(filteredSales);
   const salesByPaymentMethod = getSalesByPaymentMethod(filteredSales);
 
@@ -65,10 +62,9 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             </CardContent>
           </Card>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:gap-8 lg:grid-cols-3">
-            <GeographicSalesChart data={salesByState} />
-            <AcquisitionChannelsChart data={salesByAcquisition} />
-            <PaymentMethodsChart data={salesByPaymentMethod} />
+        <div className="grid grid-cols-1 gap-4 md:gap-8 lg:grid-cols-2">
+            <AcquisitionChannelsTable data={salesByAcquisition} />
+            <PaymentMethodsTable data={salesByPaymentMethod} />
         </div>
       </main>
     </div>

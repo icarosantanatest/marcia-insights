@@ -33,7 +33,7 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
       commission: Number(String(d.Comissao).replace(',', '.')) || 0,
       installments: d.Parcelas,
       paymentMethod: d.Forma_de_Pagamento,
-      hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true,
+      hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true || d.Order_bump === 'TRUE',
       state: d.Estado,
       country: d.Pais,
       utmSource: d.Utm_Source,
@@ -141,10 +141,6 @@ export function getSalesByState(sales: ProcessedSale[]): SalesByState[] {
 export function getSalesByAcquisition(sales: ProcessedSale[]): SalesByAcquisition[] {
   const salesBySource = sales.reduce((acc, sale) => {
     let source = sale.utmSource || 'Direto/Outros';
-    if (source.includes('google')) source = 'Google';
-    if (source.includes('facebook') || source.includes('fb.com') || source.includes('instagram')) source = 'Meta';
-    if (source.includes('profvetmarcialima')) source = 'Site Próprio';
-
     if (!acc[source]) {
         acc[source] = 0;
     }
@@ -154,8 +150,7 @@ export function getSalesByAcquisition(sales: ProcessedSale[]): SalesByAcquisitio
 
   return Object.entries(salesBySource)
     .map(([source, sales]) => ({ source, Vendas: sales }))
-    .sort((a,b) => b.Vendas - a.Vendas)
-    .slice(0, 10);
+    .sort((a,b) => b.Vendas - a.Vendas);
 }
 
 export function getSalesByPaymentMethod(sales: ProcessedSale[]): SalesByPaymentMethod[] {
