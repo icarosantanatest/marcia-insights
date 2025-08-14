@@ -34,7 +34,7 @@ export function ProductDistributionChart({ data }: ProductDistributionChartProps
                     )
                 }} />}
               />
-              <Pie data={topProducts} dataKey="revenue" nameKey="name" innerRadius="60%" cy="50%">
+              <Pie data={topProducts} dataKey="revenue" nameKey="name" innerRadius="50%" cy="50%">
                 {topProducts.map((entry) => (
                   <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                 ))}
