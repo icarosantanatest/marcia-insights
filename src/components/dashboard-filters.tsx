@@ -137,7 +137,10 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
           key={label}
           variant={isActive(from, to) ? 'default' : 'outline'}
           size="sm"
-          onClick={() => handleDateChange(from, to)}
+          onClick={() => {
+            setDate({ from, to });
+            handleDateChange(from, to);
+          }}
           className={cn((!isActive(from, to) && label !== 'Este Mês') && "hidden md:inline-flex")}
         >
           {label}
@@ -146,4 +149,3 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
     </div>
   );
 }
-
