@@ -81,13 +81,17 @@ export function getSalesByPeriod(sales: ProcessedSale[]): SalesByPeriod[] {
   }, {} as Record<string, number>);
   
   const dateRange = sales.reduce((acc, sale) => {
-      return {
-          min: sale.purchaseDate < acc.min ? sale.purchaseDate : acc.min,
-          max: sale.purchaseDate > acc.max ? sale.purchaseDate : acc.max
-      }
-  }, {min: new Date(), max: new Date(0)});
+    const saleDate = sale.purchaseDate;
+    if (!acc.min || saleDate < acc.min) {
+      acc.min = saleDate;
+    }
+    if (!acc.max || saleDate > acc.max) {
+      acc.max = saleDate;
+    }
+    return acc;
+  }, {min: null as Date | null, max: null as Date | null});
   
-  if (dateRange.min > dateRange.max) return [];
+  if (!dateRange.min || !dateRange.max) return [];
 
   const dateInterval = eachDayOfInterval({ start: dateRange.min, end: dateRange.max });
 
