@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import type { DateRange } from '@/lib/types';
@@ -11,6 +11,11 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const createQueryString = useCallback(
     (params: Record<string, string>) => {
@@ -31,6 +36,17 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
     return format(defaultDateRange.from, 'yyyy-MM-dd') === format(from, 'yyyy-MM-dd') &&
            format(defaultDateRange.to, 'yyyy-MM-dd') === format(to, 'yyyy-MM-dd');
   };
+
+  if (!isClient) {
+      return (
+        <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="hidden md:inline-flex" disabled>Este Mês</Button>
+            <Button variant="outline" size="sm" className="hidden md:inline-flex" disabled>Últimos 7 dias</Button>
+            <Button variant="outline" size="sm" className="hidden md:inline-flex" disabled>Últimos 30 dias</Button>
+            <Button variant="outline" size="sm" className="hidden md:inline-flex" disabled>Últimos 90 dias</Button>
+        </div>
+      )
+  }
 
   const today = new Date();
   const presets = [
