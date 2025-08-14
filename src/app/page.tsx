@@ -16,6 +16,7 @@ import { PaymentMethodsTable } from '@/components/payment-methods-table';
 
 import { DollarSign, ShoppingCart, Wallet, BadgePercent } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RefreshButton } from '@/components/refresh-button';
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const { filteredSales, dateRange } = await getSalesData(searchParams);
@@ -33,8 +34,9 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
         <h1 className="text-2xl font-headline font-semibold">Márcia Insights</h1>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           <DashboardFilters defaultDateRange={dateRange} />
+          <RefreshButton />
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
