@@ -28,10 +28,19 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
   useEffect(() => {
     setIsClient(true);
     setCurrentDate(new Date());
-    setDate({
-        from: parseISO(searchParams.get('from') || defaultDateRange.from.toISOString()),
-        to: parseISO(searchParams.get('to') || defaultDateRange.to.toISOString())
-    })
+    const fromParam = searchParams.get('from');
+    const toParam = searchParams.get('to');
+    if (fromParam && toParam) {
+      setDate({
+        from: parseISO(fromParam),
+        to: parseISO(toParam)
+      })
+    } else {
+        setDate({
+            from: defaultDateRange.from,
+            to: defaultDateRange.to
+        })
+    }
   }, [searchParams, defaultDateRange]);
 
   const createQueryString = useCallback(
@@ -59,19 +68,19 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
 
   const isActive = (from: Date, to: Date) => {
     if (!isClient) return false;
-    
-    const serverFrom = typeof defaultDateRange.from === 'string' ? parseISO(defaultDateRange.from) : defaultDateRange.from;
-    const serverTo = typeof defaultDateRange.to === 'string' ? parseISO(defaultDateRange.to) : defaultDateRange.to;
 
-    return format(serverFrom, 'yyyy-MM-dd') === format(from, 'yyyy-MM-dd') &&
-           format(serverTo, 'yyyy-MM-dd') === format(to, 'yyyy-MM-dd');
+    const fromParam = searchParams.get('from');
+    const toParam = searchParams.get('to');
+
+    if (!fromParam || !toParam) return false;
+
+    return format(parseISO(fromParam), 'yyyy-MM-dd') === format(from, 'yyyy-MM-dd') &&
+           format(parseISO(toParam), 'yyyy-MM-dd') === format(to, 'yyyy-MM-dd');
   };
   
   const presets = [
     { label: 'Este Mês', from: startOfMonth(currentDate), to: endOfMonth(currentDate) },
     { label: 'Últimos 7 dias', from: subDays(currentDate, 6), to: currentDate },
-    { label: 'Últimos 30 dias', from: subDays(currentDate, 29), to: currentDate },
-    { label: 'Últimos 90 dias', from: subDays(currentDate, 89), to: currentDate },
   ];
 
   if (!isClient) {
@@ -144,4 +153,3 @@ export function DashboardFilters({ defaultDateRange }: { defaultDateRange: DateR
     </div>
   );
 }
-
