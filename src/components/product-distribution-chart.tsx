@@ -18,7 +18,7 @@ export function ProductDistributionChart({ data }: ProductDistributionChartProps
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <div className="h-[200px]">
+      <div className="h-[180px]">
         <ChartContainer config={{}}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
