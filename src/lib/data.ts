@@ -42,6 +42,7 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
         country: d.Pais,
         utmSource: d.Utm_Source,
         utmCampaign: d.Utm_Campaign,
+        utmMedium: d.Utm_Medium,
       }
     })
     .filter((d): d is ProcessedSale => d !== null);
@@ -150,16 +151,19 @@ export function getSalesByState(sales: ProcessedSale[]): SalesByState[] {
 
 export function getSalesByAcquisition(sales: ProcessedSale[]): SalesByAcquisition[] {
   const salesBySource = sales.reduce((acc, sale) => {
-    let source = sale.utmSource || 'Direto/Outros';
-    if (!acc[source]) {
-        acc[source] = 0;
+    const source = sale.utmSource || 'Direto/Outros';
+    const medium = sale.utmMedium || '-';
+    const campaign = sale.utmCampaign || '-';
+    const key = `${source}|${medium}|${campaign}`;
+    
+    if (!acc[key]) {
+        acc[key] = { source, medium, campaign, Vendas: 0 };
     }
-    acc[source] += 1;
+    acc[key].Vendas += 1;
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<string, SalesByAcquisition>);
 
-  return Object.entries(salesBySource)
-    .map(([source, sales]) => ({ source, Vendas: sales }))
+  return Object.values(salesBySource)
     .sort((a,b) => b.Vendas - a.Vendas);
 }
 

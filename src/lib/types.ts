@@ -40,6 +40,7 @@ export type ProcessedSale = {
   country: string;
   utmSource: string;
   utmCampaign: string;
+  utmMedium: string;
 };
 
 export type Kpi = {
@@ -68,6 +69,8 @@ export type SalesByState = {
 
 export type SalesByAcquisition = {
   source: string;
+  medium: string;
+  campaign: string;
   Vendas: number;
 };
 

@@ -14,21 +14,25 @@ export function AcquisitionChannelsTable({ data }: AcquisitionChannelsTableProps
     <Card>
       <CardHeader>
         <CardTitle>Canais de Aquisição</CardTitle>
-        <CardDescription>Vendas por UTM Source.</CardDescription>
+        <CardDescription>Vendas por canais de aquisição (UTM).</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[300px]">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Canal (UTM Source)</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Medium</TableHead>
+                <TableHead>Campaign</TableHead>
                 <TableHead className="text-right">Vendas</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item) => (
-                <TableRow key={item.source}>
+              {data.map((item, index) => (
+                <TableRow key={index}>
                   <TableCell className="font-medium">{item.source}</TableCell>
+                  <TableCell>{item.medium}</TableCell>
+                  <TableCell>{item.campaign}</TableCell>
                   <TableCell className="text-right">{item.Vendas}</TableCell>
                 </TableRow>
               ))}
