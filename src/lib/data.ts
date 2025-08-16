@@ -11,7 +11,7 @@ import type {
   SearchParams,
   DateRange,
 } from './types';
-import { subDays, startOfMonth, endOfMonth, format, parse, eachDayOfInterval, parseISO } from 'date-fns';
+import { subDays, startOfMonth, endOfMonth, format, parse, eachDayOfInterval, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { parse as parseCsv } from 'papaparse';
 
@@ -48,29 +48,36 @@ async function fetchSalesFromSheet(): Promise<Sale[]> {
 
 function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
   return rawData
-    .filter(d => d && d.Status === 'aprovada' && d.Data_da_compra)
+    .filter(d => d && d.Status === 'aprovada' && d.Data_da_compra && d.Valor_Venda)
     .map(d => {
-      const saleValue = Number(String(d.Valor_Venda).replace(',', '.')) || 0;
-      if (saleValue <= 0) return null;
+      try {
+        const saleValue = Number(String(d.Valor_Venda).replace(',', '.')) || 0;
+        if (saleValue <= 0) return null;
 
-      return {
-        purchaseDate: parse(d.Data_da_compra, 'dd-MM-yyyy', new Date()),
-        transactionId: d.transacao_prod,
-        status: d.Status,
-        platform: d.Plataforma,
-        buyerName: d.Nome_do_Comprador,
-        email: d.Email,
-        productName: d.Produto_comprado.trim(),
-        saleValue: saleValue,
-        commission: Number(String(d.Comissao).replace(',', '.')) || 0,
-        installments: Number(d.Parcelas) || 0,
-        paymentMethod: d.Forma_de_Pagamento,
-        hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true || d.Order_bump === 'TRUE',
-        state: d.Estado,
-        country: d.Pais,
-        utmSource: d.Utm_Source,
-        utmCampaign: d.Utm_Campaign,
-        utmMedium: d.Utm_Medium,
+        const purchaseDate = parse(d.Data_da_compra, 'dd-MM-yyyy', new Date());
+
+        return {
+          purchaseDate: purchaseDate,
+          transactionId: d.transacao_prod,
+          status: d.Status,
+          platform: d.Plataforma,
+          buyerName: d.Nome_do_Comprador,
+          email: d.Email,
+          productName: d.Produto_comprado.trim(),
+          saleValue: saleValue,
+          commission: Number(String(d.Comissao).replace(',', '.')) || 0,
+          installments: Number(d.Parcelas) || 0,
+          paymentMethod: d.Forma_de_Pagamento,
+          hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true || d.Order_bump === 'TRUE',
+          state: d.Estado,
+          country: d.Pais,
+          utmSource: d.Utm_Source,
+          utmCampaign: d.Utm_Campaign,
+          utmMedium: d.Utm_Medium,
+        }
+      } catch (e) {
+        console.warn('Skipping invalid sale record:', d, e);
+        return null;
       }
     })
     .filter((d): d is ProcessedSale => d !== null && !isNaN(d.purchaseDate.getTime()));
@@ -81,8 +88,8 @@ function getDateRange(searchParams: SearchParams): DateRange {
   let from: Date, to: Date;
 
   if (searchParams.from && searchParams.to) {
-      from = parseISO(searchParams.from as string);
-      to = parseISO(searchParams.to as string);
+      from = startOfDay(parseISO(searchParams.from as string));
+      to = endOfDay(parseISO(searchParams.to as string));
   } else {
       from = startOfMonth(today);
       to = endOfMonth(today);
@@ -95,6 +102,7 @@ export async function getSalesData(searchParams: SearchParams) {
   const allSales = processRawSalesData(rawSales);
   
   const dateRange = getDateRange(searchParams);
+
   const filteredSales = allSales.filter(sale => {
     return sale.purchaseDate >= dateRange.from && sale.purchaseDate <= dateRange.to;
   });
