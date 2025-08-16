@@ -8,7 +8,7 @@ import type {
   DateRange,
   AnalysisData,
 } from './types';
-import { format, eachDayOfInterval } from 'date-fns';
+import { format, eachDayOfInterval, isWithinInterval } from 'date-fns';
 
 function calculateKpis(sales: ProcessedSale[]): Kpi {
   const totalRevenue = sales.reduce((acc, sale) => acc + sale.saleValue, 0);
@@ -104,9 +104,9 @@ function getSalesByPaymentMethod(sales: ProcessedSale[]): SalesByPaymentMethod[]
 }
 
 export function analyzeSalesData(allSales: ProcessedSale[], dateRange: DateRange): AnalysisData {
-    const filteredSales = allSales.filter(sale => {
-        return sale.purchaseDate >= dateRange.from && sale.purchaseDate <= dateRange.to;
-    });
+    const filteredSales = allSales.filter(sale => 
+        isWithinInterval(sale.purchaseDate, { start: dateRange.from, end: dateRange.to })
+    );
 
     return {
         kpis: calculateKpis(filteredSales),

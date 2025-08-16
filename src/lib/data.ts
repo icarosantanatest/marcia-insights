@@ -2,9 +2,10 @@ import type { Sale, ProcessedSale } from './types';
 import { parse as parseDate, isValid } from 'date-fns';
 import { parse as parseCsv } from 'papaparse';
 
-// This is a static data source. In a real application, you would fetch this from an API.
+// Fallback data in case the spreadsheet is unavailable
 import fallbackSalesData from './sales-data.json';
 
+// Correct URL for direct CSV export
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1l8WjmPk235ijoBl3i7SPLKYNPG4N8IRdHX5YoLdqeiw/export?format=csv';
 
 async function fetchSalesFromSheet(): Promise<Sale[]> {
@@ -56,14 +57,12 @@ export async function getProcessedSales(): Promise<ProcessedSale[]> {
         
         // If date is invalid, skip this record
         if (!isValid(purchaseDate)) {
-            // console.warn(`Invalid date format for row: ${JSON.stringify(d)}`);
             return null;
         }
 
         const saleValue = Number(String(d.Valor_Venda).replace(',', '.')) || 0;
         const commissionValue = d.Comissao ? Number(String(d.Comissao).replace(',', '.')) : 0;
         
-        // If sale value is not a positive number, it's likely an invalid entry
         if (saleValue <= 0) return null;
 
         return {
@@ -79,11 +78,11 @@ export async function getProcessedSales(): Promise<ProcessedSale[]> {
           installments: Number(d.Parcelas) || 0,
           paymentMethod: d.Forma_de_Pagamento,
           hasOrderBump: String(d.Order_bump).toUpperCase() === 'VERDADEIRO' || d.Order_bump === true || String(d.Order_bump).toUpperCase() === 'TRUE',
-          state: d.Estado,
-          country: d.Pais,
-          utmSource: d.Utm_Source,
-          utmMedium: d.Utm_Medium,
-          utmCampaign: d.Utm_Campaign,
+          state: d.Estado || 'N/A',
+          country: d.Pais || 'N/A',
+          utmSource: d.Utm_Source || 'N/A',
+          utmMedium: d.Utm_Medium || 'N/A',
+          utmCampaign: d.Utm_Campaign || 'N/A',
         }
       } catch (e) {
         console.error(`Error processing row: ${JSON.stringify(d)}`, e);

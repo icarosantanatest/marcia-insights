@@ -29,6 +29,7 @@ function getDateRange(searchParams: SearchParams): DateRange {
 }
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  // Disabling cache for data fetching to ensure real-time updates
   const allSales = await getProcessedSales();
   const dateRange = getDateRange(searchParams);
   const { kpis, salesByPeriod, salesByProduct, salesByAcquisition, salesByPaymentMethod } = analyzeSalesData(allSales, dateRange);
