@@ -3047,5 +3047,31 @@
     "Utm_Campaign": "",
     "Utm_Term": "",
     "Utm_Content": ""
+  },
+  {
+    "Data_da_compra": "15-08-2025",
+    "transacao_prod": "HP_NEW_SALE_01",
+    "Status": "aprovada",
+    "Plataforma": "HOTMART",
+    "Nome_do_Comprador": "Novo Comprador da Silva",
+    "Email": "novocomprador@example.com",
+    "Celular": "11999998888",
+    "Produto_comprado": "VetDermatoflix",
+    "Codigo_do_Produto": "4047409",
+    "Valor_Venda": "79,9",
+    "Moeda": "BRL",
+    "Comissao": "70,99",
+    "Parcelas": 1,
+    "Forma_de_Pagamento": "PIX",
+    "Order_bump": "FALSO",
+    "Estado": "SP",
+    "Pais": "Brasil",
+    "Utm_Source": "instagram",
+    "Utm_Medium": "organic",
+    "Utm_Campaign": "bio",
+    "Utm_Term": "",
+    "Utm_Content": ""
   }
 ]
+
+    
