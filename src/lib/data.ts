@@ -35,7 +35,8 @@ async function fetchSalesFromSheet(): Promise<Sale[]> {
 
     if (parsed.errors.length > 0) {
       console.error("CSV Parsing errors:", parsed.errors);
-      return fallbackSalesData as Sale[];
+      // Even with parsing errors, some data might be valid.
+      // We will proceed and let the processing function handle it.
     }
 
     return parsed.data;
@@ -48,13 +49,26 @@ async function fetchSalesFromSheet(): Promise<Sale[]> {
 
 function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
   return rawData
-    .filter(d => d && d.Status === 'aprovada' && d.Data_da_compra && d.Valor_Venda)
     .map(d => {
+      // Skip if essential data is missing
+      if (!d || !d.Status || !d.Data_da_compra || !d.Valor_Venda || !d.Produto_comprado) {
+        return null;
+      }
+      
+      // Process only approved sales
+      if (d.Status !== 'aprovada') {
+        return null;
+      }
+
       try {
         const saleValue = Number(String(d.Valor_Venda).replace(',', '.')) || 0;
         if (saleValue <= 0) return null;
 
         const purchaseDate = parse(d.Data_da_compra, 'dd-MM-yyyy', new Date());
+        if (isNaN(purchaseDate.getTime())) {
+            console.warn('Skipping invalid date format:', d.Data_da_compra, 'for record', d);
+            return null;
+        }
 
         return {
           purchaseDate: purchaseDate,
@@ -76,11 +90,11 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
           utmMedium: d.Utm_Medium,
         }
       } catch (e) {
-        console.warn('Skipping invalid sale record:', d, e);
+        console.warn('Skipping invalid sale record due to processing error:', d, e);
         return null;
       }
     })
-    .filter((d): d is ProcessedSale => d !== null && !isNaN(d.purchaseDate.getTime()));
+    .filter((d): d is ProcessedSale => d !== null);
 }
 
 function getDateRange(searchParams: SearchParams): DateRange {
