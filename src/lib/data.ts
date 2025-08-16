@@ -35,8 +35,6 @@ async function fetchSalesFromSheet(): Promise<Sale[]> {
 
     if (parsed.errors.length > 0) {
       console.error("CSV Parsing errors:", parsed.errors);
-      // Even with parsing errors, some data might be valid.
-      // We will proceed and let the processing function handle it.
     }
 
     return parsed.data;
@@ -50,13 +48,13 @@ async function fetchSalesFromSheet(): Promise<Sale[]> {
 function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
   return rawData
     .map(d => {
-      // Skip if essential data is missing
-      if (!d || !d.Status || !d.Data_da_compra || !d.Valor_Venda || !d.Produto_comprado) {
+      // Skip if essential data is missing or if it's not an object
+      if (!d || typeof d !== 'object' || !d.Status || !d.Data_da_compra || !d.Valor_Venda || !d.Produto_comprado) {
         return null;
       }
       
       // Process only approved sales
-      if (d.Status !== 'aprovada') {
+      if (d.Status.toLowerCase() !== 'aprovada') {
         return null;
       }
 
@@ -65,10 +63,13 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
         if (saleValue <= 0) return null;
 
         const purchaseDate = parse(d.Data_da_compra, 'dd-MM-yyyy', new Date());
+        
         if (isNaN(purchaseDate.getTime())) {
             console.warn('Skipping invalid date format:', d.Data_da_compra, 'for record', d);
             return null;
         }
+
+        const commissionValue = d.Comissao ? Number(String(d.Comissao).replace(',', '.')) : 0;
 
         return {
           purchaseDate: purchaseDate,
@@ -79,10 +80,10 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
           email: d.Email,
           productName: d.Produto_comprado.trim(),
           saleValue: saleValue,
-          commission: Number(String(d.Comissao).replace(',', '.')) || 0,
+          commission: commissionValue,
           installments: Number(d.Parcelas) || 0,
           paymentMethod: d.Forma_de_Pagamento,
-          hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true || d.Order_bump === 'TRUE',
+          hasOrderBump: String(d.Order_bump).toUpperCase() === 'VERDADEIRO' || d.Order_bump === true || String(d.Order_bump).toUpperCase() === 'TRUE',
           state: d.Estado,
           country: d.Pais,
           utmSource: d.Utm_Source,
