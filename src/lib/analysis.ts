@@ -45,11 +45,12 @@ function getSalesByPeriod(sales: ProcessedSale[], dateRange: DateRange): SalesBy
 
 function getSalesByProduct(sales: ProcessedSale[]): SalesByProduct[] {
   const salesByProduct = sales.reduce((acc, sale) => {
-    if (!acc[sale.productName]) {
-      acc[sale.productName] = { sales: 0, revenue: 0 };
+    const productName = sale.productName || 'Produto não identificado';
+    if (!acc[productName]) {
+      acc[productName] = { sales: 0, revenue: 0 };
     }
-    acc[sale.productName].sales += 1;
-    acc[sale.productName].revenue += sale.saleValue;
+    acc[productName].sales += 1;
+    acc[productName].revenue += sale.saleValue;
     return acc;
   }, {} as Record<string, { sales: number; revenue: number }>);
   

@@ -10,30 +10,33 @@ const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1l8WjmPk235ijoBl
 
 async function fetchSalesFromSheet(): Promise<Sale[]> {
   try {
-    const response = await fetch(SPREADSHEET_URL, { next: { revalidate: 60 } }); // Cache for 60 seconds
+    // Fetch data with a revalidation policy to get fresh data periodically.
+    const response = await fetch(SPREADSHEET_URL, { next: { revalidate: 60 } });
     if (!response.ok) {
       console.error('Failed to fetch spreadsheet:', response.statusText);
-      return fallbackSalesData as Sale[];
+      return fallbackSalesData as Sale[]; // Use fallback on fetch error
     }
     const csvText = await response.text();
     const parsed = parseCsv<Sale>(csvText, {
       header: true,
       skipEmptyLines: true,
+      transformHeader: header => header.trim().replace(/ /g, '_'), // Normalize headers
     });
 
     if (parsed.errors.length > 0) {
       console.error("CSV Parsing errors:", parsed.errors);
+      // Even with parsing errors, some data might be valid.
     }
     
-    if (parsed.data.length === 0) {
-        console.warn("CSV data is empty, using fallback data.");
+    if (!parsed.data || parsed.data.length === 0) {
+        console.warn("CSV data is empty or parsing failed, using fallback data.");
         return fallbackSalesData as Sale[];
     }
 
     return parsed.data;
   } catch (error) {
     console.error('Error fetching or parsing spreadsheet data:', error);
-    return fallbackSalesData as Sale[];
+    return fallbackSalesData as Sale[]; // Use fallback on any other error
   }
 }
 
@@ -41,7 +44,7 @@ export async function getProcessedSales(): Promise<ProcessedSale[]> {
   const rawData = await fetchSalesFromSheet();
   
   return rawData
-    .map(d => {
+    .map((d: Sale) => {
       // Basic validation to check if the row is usable
       if (!d || typeof d !== 'object' || !d.Status || !d.Data_da_compra || !d.Valor_Venda || !d.Produto_comprado) {
         return null;
@@ -55,8 +58,8 @@ export async function getProcessedSales(): Promise<ProcessedSale[]> {
       try {
         const purchaseDate = parseDate(d.Data_da_compra, 'dd-MM-yyyy', new Date());
         
-        // If date is invalid, skip this record
         if (!isValid(purchaseDate)) {
+            console.warn(`Invalid date format for row: ${d.Data_da_compra}`);
             return null;
         }
 
@@ -72,7 +75,7 @@ export async function getProcessedSales(): Promise<ProcessedSale[]> {
           platform: d.Plataforma,
           buyerName: d.Nome_do_Comprador,
           email: d.Email,
-          productName: d.Produto_comprado.trim(),
+          productName: String(d.Produto_comprado).trim(),
           saleValue: saleValue,
           commission: commissionValue,
           installments: Number(d.Parcelas) || 0,

@@ -14,6 +14,9 @@ import { DollarSign, ShoppingCart, Wallet, BadgePercent } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshButton } from '@/components/refresh-button';
 
+// This function determines the date range to be used for filtering the sales data.
+// It prioritizes the dates from the URL query parameters (`from` and `to`).
+// If they are not present, it defaults to the current month.
 function getDateRange(searchParams: SearchParams): DateRange {
   const today = new Date();
   let from: Date, to: Date;
@@ -29,9 +32,12 @@ function getDateRange(searchParams: SearchParams): DateRange {
 }
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
-  // Disabling cache for data fetching to ensure real-time updates
+  // Set cache to 'no-store' to ensure data is fetched on every request.
+  // This is important for a dashboard that needs to reflect the latest data.
   const allSales = await getProcessedSales();
   const dateRange = getDateRange(searchParams);
+  
+  // The analysis function processes all sales data based on the selected date range.
   const { kpis, salesByPeriod, salesByProduct, salesByAcquisition, salesByPaymentMethod } = analyzeSalesData(allSales, dateRange);
 
   const formatCurrency = (value: number) =>
