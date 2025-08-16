@@ -25,7 +25,7 @@ async function fetchSalesFromSheet(): Promise<Sale[]> {
     const response = await fetch(SPREADSHEET_URL, { next: { revalidate: 60 } }); // Cache for 60 seconds
     if (!response.ok) {
       console.error('Failed to fetch spreadsheet:', response.statusText);
-      return fallbackSalesData;
+      return fallbackSalesData as Sale[];
     }
     const csvText = await response.text();
     const parsed = parseCsv<Sale>(csvText, {
@@ -35,20 +35,20 @@ async function fetchSalesFromSheet(): Promise<Sale[]> {
 
     if (parsed.errors.length > 0) {
       console.error("CSV Parsing errors:", parsed.errors);
-      return fallbackSalesData;
+      return fallbackSalesData as Sale[];
     }
 
     return parsed.data;
   } catch (error) {
     console.error('Error fetching or parsing spreadsheet data:', error);
-    return fallbackSalesData;
+    return fallbackSalesData as Sale[];
   }
 }
 
 
 function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
   return rawData
-    .filter(d => d.Status === 'aprovada')
+    .filter(d => d && d.Status === 'aprovada' && d.Data_da_compra)
     .map(d => {
       const saleValue = Number(String(d.Valor_Venda).replace(',', '.')) || 0;
       if (saleValue <= 0) return null;
@@ -63,7 +63,7 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
         productName: d.Produto_comprado.trim(),
         saleValue: saleValue,
         commission: Number(String(d.Comissao).replace(',', '.')) || 0,
-        installments: d.Parcelas,
+        installments: Number(d.Parcelas) || 0,
         paymentMethod: d.Forma_de_Pagamento,
         hasOrderBump: d.Order_bump === 'VERDADEIRO' || d.Order_bump === true || d.Order_bump === 'TRUE',
         state: d.Estado,
@@ -73,7 +73,7 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
         utmMedium: d.Utm_Medium,
       }
     })
-    .filter((d): d is ProcessedSale => d !== null);
+    .filter((d): d is ProcessedSale => d !== null && !isNaN(d.purchaseDate.getTime()));
 }
 
 function getDateRange(searchParams: SearchParams): DateRange {
