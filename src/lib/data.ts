@@ -36,6 +36,11 @@ async function fetchSalesFromSheet(): Promise<Sale[]> {
     if (parsed.errors.length > 0) {
       console.error("CSV Parsing errors:", parsed.errors);
     }
+    
+    if (parsed.data.length === 0) {
+        console.warn("CSV data is empty, using fallback data.");
+        return fallbackSalesData as Sale[];
+    }
 
     return parsed.data;
   } catch (error) {
