@@ -1,3 +1,4 @@
+
 import type {
   Sale,
   ProcessedSale,
@@ -12,11 +13,38 @@ import type {
 } from './types';
 import { subDays, startOfMonth, endOfMonth, format, parse, eachDayOfInterval, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { parse as parseCsv } from 'papaparse';
 
 // This is a static data source. In a real application, you would fetch this from an API.
-import salesDataJson from './sales-data.json';
+import fallbackSalesData from './sales-data.json';
 
-const rawSalesData: Sale[] = salesDataJson;
+const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1l8WjmPk235ijoBl3i7SPLKYNPG4N8IRdHX5YoLdqeiw/export?format=csv';
+
+async function fetchSalesFromSheet(): Promise<Sale[]> {
+  try {
+    const response = await fetch(SPREADSHEET_URL, { next: { revalidate: 60 } }); // Cache for 60 seconds
+    if (!response.ok) {
+      console.error('Failed to fetch spreadsheet:', response.statusText);
+      return fallbackSalesData;
+    }
+    const csvText = await response.text();
+    const parsed = parseCsv<Sale>(csvText, {
+      header: true,
+      skipEmptyLines: true,
+    });
+
+    if (parsed.errors.length > 0) {
+      console.error("CSV Parsing errors:", parsed.errors);
+      return fallbackSalesData;
+    }
+
+    return parsed.data;
+  } catch (error) {
+    console.error('Error fetching or parsing spreadsheet data:', error);
+    return fallbackSalesData;
+  }
+}
+
 
 function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
   return rawData
@@ -48,8 +76,6 @@ function processRawSalesData(rawData: Sale[]): ProcessedSale[] {
     .filter((d): d is ProcessedSale => d !== null);
 }
 
-const allSales = processRawSalesData(rawSalesData);
-
 function getDateRange(searchParams: SearchParams): DateRange {
   const today = new Date();
   let from: Date, to: Date;
@@ -65,6 +91,9 @@ function getDateRange(searchParams: SearchParams): DateRange {
 }
 
 export async function getSalesData(searchParams: SearchParams) {
+  const rawSales = await fetchSalesFromSheet();
+  const allSales = processRawSalesData(rawSales);
+  
   const dateRange = getDateRange(searchParams);
   const filteredSales = allSales.filter(sale => {
     return sale.purchaseDate >= dateRange.from && sale.purchaseDate <= dateRange.to;
