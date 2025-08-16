@@ -1,5 +1,5 @@
 import type { Sale, ProcessedSale } from './types';
-import { parse as parseDate } from 'date-fns';
+import { parse as parseDate, isValid } from 'date-fns';
 import { parse as parseCsv } from 'papaparse';
 
 // This is a static data source. In a real application, you would fetch this from an API.
@@ -41,25 +41,30 @@ export async function getProcessedSales(): Promise<ProcessedSale[]> {
   
   return rawData
     .map(d => {
+      // Basic validation to check if the row is usable
       if (!d || typeof d !== 'object' || !d.Status || !d.Data_da_compra || !d.Valor_Venda || !d.Produto_comprado) {
         return null;
       }
       
+      // Filter only approved sales
       if (d.Status.toLowerCase() !== 'aprovada') {
         return null;
       }
 
       try {
-        const saleValue = Number(String(d.Valor_Venda).replace(',', '.')) || 0;
-        if (saleValue <= 0) return null;
-
         const purchaseDate = parseDate(d.Data_da_compra, 'dd-MM-yyyy', new Date());
         
-        if (isNaN(purchaseDate.getTime())) {
+        // If date is invalid, skip this record
+        if (!isValid(purchaseDate)) {
+            // console.warn(`Invalid date format for row: ${JSON.stringify(d)}`);
             return null;
         }
 
+        const saleValue = Number(String(d.Valor_Venda).replace(',', '.')) || 0;
         const commissionValue = d.Comissao ? Number(String(d.Comissao).replace(',', '.')) : 0;
+        
+        // If sale value is not a positive number, it's likely an invalid entry
+        if (saleValue <= 0) return null;
 
         return {
           purchaseDate: purchaseDate,
@@ -81,6 +86,7 @@ export async function getProcessedSales(): Promise<ProcessedSale[]> {
           utmCampaign: d.Utm_Campaign,
         }
       } catch (e) {
+        console.error(`Error processing row: ${JSON.stringify(d)}`, e);
         return null;
       }
     })

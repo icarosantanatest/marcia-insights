@@ -5,22 +5,22 @@ export type Sale = {
   Plataforma: string;
   Nome_do_Comprador: string;
   Email: string;
-  Celular: string;
+  Celular?: string;
   Produto_comprado: string;
-  Codigo_do_Produto: string;
+  Codigo_do_Produto?: string;
   Valor_Venda: number | string;
-  Moeda: string;
+  Moeda?: string;
   Comissao: number | string;
-  Parcelas: number;
+  Parcelas?: number | string;
   Forma_de_Pagamento: string;
-  Order_bump: boolean | string;
-  Estado: string;
-  Pais: string;
-  Utm_Source: string;
-  Utm_Medium: string;
-  Utm_Campaign: string;
-  Utm_Term: string;
-  Utm_Content: string;
+  Order_bump?: boolean | string;
+  Estado?: string;
+  Pais?: string;
+  Utm_Source?: string;
+  Utm_Medium?: string;
+  Utm_Campaign?: string;
+  Utm_Term?: string;
+  Utm_Content?: string;
 };
 
 export type ProcessedSale = {
@@ -35,12 +35,12 @@ export type ProcessedSale = {
   commission: number;
   installments: number;
   paymentMethod: string;
-  hasOrderBump: boolean | string;
+  hasOrderBump: boolean;
   state: string;
   country: string;
   utmSource: string;
-  utmCampaign: string;
   utmMedium: string;
+  utmCampaign: string;
 };
 
 export type Kpi = {
@@ -60,11 +60,6 @@ export type SalesByProduct = {
   sales: number;
   revenue: number;
   fill: string;
-};
-
-export type SalesByState = {
-  state: string;
-  Vendas: number;
 };
 
 export type SalesByAcquisition = {
