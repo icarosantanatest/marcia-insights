@@ -1,9 +1,8 @@
 "use client";
 
 import type { SalesByProduct } from '@/lib/types';
-import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChartTooltipContent, ChartContainer, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from 'recharts';
+import { ChartTooltipContent, ChartContainer } from '@/components/ui/chart';
 
 interface ProductDistributionChartProps {
   data: SalesByProduct[];
@@ -13,7 +12,7 @@ export function ProductDistributionChart({ data }: ProductDistributionChartProps
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-  const topProducts = data.slice(0, 5);
+  const topProducts = data.slice(0, 5).reverse(); // Reverse to show top product at the top
 
   const chartConfig = topProducts.reduce((acc, product) => {
     acc[product.name] = {
@@ -24,33 +23,40 @@ export function ProductDistributionChart({ data }: ProductDistributionChartProps
   }, {} as any);
 
   return (
-    <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+    <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
         <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
+            <BarChart 
+                layout="vertical" 
+                data={topProducts}
+                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
+                <XAxis type="number" hide />
+                <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    tickLine={false} 
+                    axisLine={false}
+                    tick={{ fontSize: 12 }}
+                    width={150}
+                    />
                 <Tooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel formatter={(value, name, item) => {
-                        const payload = item.payload as SalesByProduct;
-                        return (
-                            <div className="flex flex-col">
-                                <span className="font-bold">{payload.name}</span>
-                                <span>{formatCurrency(payload.revenue)} ({payload.sales} vendas)</span>
+                    cursor={{ fill: 'hsl(var(--muted))' }}
+                    content={<ChartTooltipContent 
+                        formatter={(value, name) => (
+                           <div className="flex flex-col">
+                                <span className="font-bold">{name}</span>
+                                <span>{formatCurrency(value as number)}</span>
                             </div>
-                        )
-                    }} />}
+                        )}
+                        hideLabel 
+                    />}
                 />
-                <Pie data={topProducts} dataKey="revenue" nameKey="name" innerRadius="60%" cy="50%">
+                <Bar dataKey="revenue" layout="vertical" radius={4} barSize={30}>
                     {topProducts.map((entry) => (
-                    <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                        <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                     ))}
-                </Pie>
-                 <ChartLegend
-                    content={<ChartLegendContent nameKey="name" />}
-                    verticalAlign="bottom"
-                    align="center"
-                    wrapperStyle={{ paddingTop: 20 }}
-                />
-            </PieChart>
+                </Bar>
+            </BarChart>
         </ResponsiveContainer>
     </ChartContainer>
   );
