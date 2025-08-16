@@ -3058,12 +3058,12 @@
     "Celular": "11999998888",
     "Produto_comprado": "VetDermatoflix",
     "Codigo_do_Produto": "4047409",
-    "Valor_Venda": "79,9",
+    "Valor_Venda": 79.90,
     "Moeda": "BRL",
-    "Comissao": "70,99",
+    "Comissao": 70.99,
     "Parcelas": 1,
     "Forma_de_Pagamento": "PIX",
-    "Order_bump": "FALSO",
+    "Order_bump": false,
     "Estado": "SP",
     "Pais": "Brasil",
     "Utm_Source": "instagram",
@@ -3073,5 +3073,3 @@
     "Utm_Content": ""
   }
 ]
-
-    
