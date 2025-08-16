@@ -10,7 +10,7 @@ import { DashboardFilters } from '@/components/dashboard-filters';
 import { AcquisitionChannelsTable } from '@/components/acquisition-channels-table';
 import { PaymentMethodsTable } from '@/components/payment-methods-table';
 
-import { DollarSign, ShoppingCart, Wallet, BadgePercent } from 'lucide-react';
+import { DollarSign, ShoppingCart, BadgePercent } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshButton } from '@/components/refresh-button';
 
@@ -53,9 +53,8 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
           <KpiCard title="Faturamento Total" value={formatCurrency(kpis.totalRevenue)} icon={DollarSign} />
-          <KpiCard title="Faturamento Líquido" value={formatCurrency(kpis.netCommission)} icon={Wallet} />
           <KpiCard title="Vendas" value={kpis.salesCount.toString()} icon={ShoppingCart} />
           <KpiCard title="Ticket Médio" value={formatCurrency(kpis.averageTicket)} icon={BadgePercent} />
         </div>
