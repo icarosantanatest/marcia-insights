@@ -88,3 +88,11 @@ export type DateRange = {
   from: Date;
   to: Date;
 };
+
+export type AnalysisData = {
+    kpis: Kpi;
+    salesByPeriod: SalesByPeriod[];
+    salesByProduct: SalesByProduct[];
+    salesByAcquisition: SalesByAcquisition[];
+    salesByPaymentMethod: SalesByPaymentMethod[];
+}

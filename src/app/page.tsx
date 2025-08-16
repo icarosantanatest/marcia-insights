@@ -1,12 +1,8 @@
-import {
-  getSalesData,
-  calculateKpis,
-  getSalesByPeriod,
-  getSalesByProduct,
-  getSalesByAcquisition,
-  getSalesByPaymentMethod,
-} from '@/lib/data';
-import type { SearchParams } from '@/lib/types';
+import { getProcessedSales } from '@/lib/data';
+import { analyzeSalesData } from '@/lib/analysis';
+import type { SearchParams, DateRange } from '@/lib/types';
+import { startOfMonth, endOfMonth, parseISO, startOfDay, endOfDay } from 'date-fns';
+
 import { KpiCard } from '@/components/kpi-card';
 import { SalesTrendChart } from '@/components/sales-trend-chart';
 import { ProductDistributionChart } from '@/components/product-distribution-chart';
@@ -18,14 +14,24 @@ import { DollarSign, ShoppingCart, Wallet, BadgePercent } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshButton } from '@/components/refresh-button';
 
-export default async function Home({ searchParams }: { searchParams: SearchParams }) {
-  const { filteredSales, dateRange } = await getSalesData(searchParams);
+function getDateRange(searchParams: SearchParams): DateRange {
+  const today = new Date();
+  let from: Date, to: Date;
 
-  const kpis = calculateKpis(filteredSales);
-  const salesByPeriod = getSalesByPeriod(filteredSales);
-  const salesByProduct = getSalesByProduct(filteredSales);
-  const salesByAcquisition = getSalesByAcquisition(filteredSales);
-  const salesByPaymentMethod = getSalesByPaymentMethod(filteredSales);
+  if (searchParams.from && searchParams.to) {
+      from = startOfDay(parseISO(searchParams.from as string));
+      to = endOfDay(parseISO(searchParams.to as string));
+  } else {
+      from = startOfMonth(today);
+      to = endOfMonth(today);
+  }
+  return { from, to };
+}
+
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const allSales = await getProcessedSales();
+  const dateRange = getDateRange(searchParams);
+  const { kpis, salesByPeriod, salesByProduct, salesByAcquisition, salesByPaymentMethod } = analyzeSalesData(allSales, dateRange);
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
