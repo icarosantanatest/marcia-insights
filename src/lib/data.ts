@@ -14,7 +14,7 @@ async function fetchSalesFromSheet(): Promise<any[]> {
       return fallbackSalesData;
     }
     const csvText = await response.text();
-    const parsed = parse(csvText, {
+    const parsed = parseCsv(csvText, {
       header: true,
       skipEmptyLines: true,
       transformHeader: header => header.trim(),
