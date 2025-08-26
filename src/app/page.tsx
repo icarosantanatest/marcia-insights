@@ -10,15 +10,12 @@ import { DashboardFilters } from '@/components/dashboard-filters';
 import { AcquisitionChannelsTable } from '@/components/acquisition-channels-table';
 import { PaymentMethodsTable } from '@/components/payment-methods-table';
 
-import { DollarSign, ShoppingCart, BadgePercent } from 'lucide-react';
+import { DollarSign, ShoppingCart, TrendingDown, ArrowLeftRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshButton } from '@/components/refresh-button';
 
 export const dynamic = 'force-dynamic';
 
-// This function determines the date range to be used for filtering the sales data.
-// It prioritizes the dates from the URL query parameters (`from` and `to`).
-// If they are not present, it defaults to the current month.
 function getDateRange(searchParams: SearchParams): DateRange {
   const today = new Date();
   let from: Date, to: Date;
@@ -37,7 +34,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   const allSales = await getProcessedSales();
   const dateRange = getDateRange(searchParams);
   
-  // The analysis function processes all sales data based on the selected date range.
   const { kpis, salesByPeriod, salesByProduct, salesByAcquisition, salesByPaymentMethod } = analyzeSalesData(allSales, dateRange);
 
   const formatCurrency = (value: number) =>
@@ -53,10 +49,16 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
           <KpiCard title="Faturamento Total" value={formatCurrency(kpis.totalRevenue)} icon={DollarSign} />
+          <KpiCard title="Faturamento Líquido" value={formatCurrency(kpis.netRevenue)} icon={ArrowLeftRight} />
           <KpiCard title="Vendas" value={kpis.salesCount.toString()} icon={ShoppingCart} />
-          <KpiCard title="Ticket Médio" value={formatCurrency(kpis.averageTicket)} icon={BadgePercent} />
+          <KpiCard 
+            title="Total Reembolsado" 
+            value={formatCurrency(kpis.totalRefunded)} 
+            icon={TrendingDown}
+            footer={`${kpis.refundedCount} ${kpis.refundedCount === 1 ? 'reembolso' : 'reembolsos'}`}
+          />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-7">
           <Card className="lg:col-span-4">

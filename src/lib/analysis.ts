@@ -10,12 +10,26 @@ import type {
 } from './types';
 import { format, eachDayOfInterval, isWithinInterval } from 'date-fns';
 
-function calculateKpis(sales: ProcessedSale[]): Kpi {
-  const totalRevenue = sales.reduce((acc, sale) => acc + sale.saleValue, 0);
-  const salesCount = sales.length;
-  const averageTicket = salesCount > 0 ? totalRevenue / salesCount : 0;
+function calculateKpis(allSales: ProcessedSale[], filteredSales: ProcessedSale[]): Kpi {
+  const totalRevenue = filteredSales.reduce((acc, sale) => acc + sale.saleValue, 0);
+  const netRevenue = filteredSales.reduce((acc, sale) => acc + sale.commission, 0);
+  const salesCount = filteredSales.length;
+  
+  const refundedSales = allSales.filter(sale => sale.status === 'reembolsada' && isWithinInterval(sale.purchaseDate, { start: filteredSales[0]?.purchaseDate || new Date(), end: filteredSales[filteredSales.length - 1]?.purchaseDate || new Date() }));
+  
+  const refundedSalesInDateRange = allSales.filter(sale => 
+    sale.status === 'reembolsada' && 
+    isWithinInterval(sale.purchaseDate, { start: filteredSales[0]?.purchaseDate, end: filteredSales[filteredSales.length -1]?.purchaseDate })
+  );
+  
+  const totalRefunded = allSales
+    .filter(sale => sale.status === 'reembolsada' && isWithinInterval(sale.purchaseDate, {start: filteredSales[0]?.purchaseDate, end: filteredSales[filteredSales.length - 1]?.purchaseDate}))
+    .reduce((acc, sale) => acc + sale.saleValue, 0);
 
-  return { totalRevenue, salesCount, averageTicket };
+  const refundedCount = allSales.filter(sale => sale.status === 'reembolsada' && isWithinInterval(sale.purchaseDate, {start: filteredSales[0]?.purchaseDate, end: filteredSales[filteredSales.length - 1]?.purchaseDate})).length;
+
+
+  return { totalRevenue, netRevenue, salesCount, totalRefunded, refundedCount };
 }
 
 function getSalesByPeriod(sales: ProcessedSale[], dateRange: DateRange): SalesByPeriod[] {
@@ -107,11 +121,12 @@ function getSalesByPaymentMethod(sales: ProcessedSale[]): SalesByPaymentMethod[]
 
 export function analyzeSalesData(allSales: ProcessedSale[], dateRange: DateRange): AnalysisData {
     const filteredSales = allSales.filter(sale => 
+        sale.status === 'aprovada' &&
         isWithinInterval(sale.purchaseDate, { start: dateRange.from, end: dateRange.to })
     );
 
     return {
-        kpis: calculateKpis(filteredSales),
+        kpis: calculateKpis(allSales, filteredSales),
         salesByPeriod: getSalesByPeriod(filteredSales, dateRange),
         salesByProduct: getSalesByProduct(filteredSales),
         salesByAcquisition: getSalesByAcquisition(filteredSales),
