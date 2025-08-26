@@ -42,12 +42,17 @@ export function ProductDistributionChart({ data }: ProductDistributionChartProps
                 <Tooltip
                     cursor={{ fill: 'hsl(var(--muted))' }}
                     content={<ChartTooltipContent 
-                        formatter={(value, name) => (
-                           <div className="flex flex-col">
-                                <span className="font-bold">{name}</span>
-                                <span>{formatCurrency(value as number)}</span>
-                            </div>
-                        )}
+                        formatter={(value, name, props) => {
+                            const { payload } = props;
+                            const salesCount = payload.sales;
+                            return (
+                               <div className="flex flex-col gap-1">
+                                    <span className="font-bold">{name}</span>
+                                    <span>Faturamento: {formatCurrency(value as number)}</span>
+                                    <span>Vendas: {salesCount}</span>
+                                </div>
+                            )
+                        }}
                         hideLabel 
                     />}
                 />
