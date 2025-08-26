@@ -47,7 +47,7 @@ export function ProductDistributionChart({ data }: ProductDistributionChartProps
                             const salesCount = payload.sales;
                             return (
                                <div className="flex flex-col gap-1">
-                                    <span className="font-bold">{name}</span>
+                                    <span className="font-bold">{payload.name}</span>
                                     <span>Faturamento: {formatCurrency(value as number)}</span>
                                     <span>Vendas: {salesCount}</span>
                                 </div>
