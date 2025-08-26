@@ -14,6 +14,8 @@ import { DollarSign, ShoppingCart, BadgePercent } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshButton } from '@/components/refresh-button';
 
+export const dynamic = 'force-dynamic';
+
 // This function determines the date range to be used for filtering the sales data.
 // It prioritizes the dates from the URL query parameters (`from` and `to`).
 // If they are not present, it defaults to the current month.
@@ -32,8 +34,6 @@ function getDateRange(searchParams: SearchParams): DateRange {
 }
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
-  // Set cache to 'no-store' to ensure data is fetched on every request.
-  // This is important for a dashboard that needs to reflect the latest data.
   const allSales = await getProcessedSales();
   const dateRange = getDateRange(searchParams);
   
