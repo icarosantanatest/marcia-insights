@@ -45,7 +45,6 @@ export type ProcessedSale = {
 
 export type Kpi = {
   totalRevenue: number;
-  netCommission: number;
   salesCount: number;
   averageTicket: number;
 };
@@ -53,6 +52,7 @@ export type Kpi = {
 export type SalesByPeriod = {
   date: string;
   Vendas: number;
+  count: number;
 };
 
 export type SalesByProduct = {

@@ -12,11 +12,10 @@ import { format, eachDayOfInterval, isWithinInterval } from 'date-fns';
 
 function calculateKpis(sales: ProcessedSale[]): Kpi {
   const totalRevenue = sales.reduce((acc, sale) => acc + sale.saleValue, 0);
-  const netCommission = sales.reduce((acc, sale) => acc + sale.commission, 0);
   const salesCount = sales.length;
   const averageTicket = salesCount > 0 ? totalRevenue / salesCount : 0;
 
-  return { totalRevenue, netCommission, salesCount, averageTicket };
+  return { totalRevenue, salesCount, averageTicket };
 }
 
 function getSalesByPeriod(sales: ProcessedSale[], dateRange: DateRange): SalesByPeriod[] {
@@ -25,11 +24,12 @@ function getSalesByPeriod(sales: ProcessedSale[], dateRange: DateRange): SalesBy
   const salesByDate = sales.reduce((acc, sale) => {
     const dateStr = format(sale.purchaseDate, 'yyyy-MM-dd');
     if (!acc[dateStr]) {
-      acc[dateStr] = 0;
+      acc[dateStr] = { revenue: 0, count: 0 };
     }
-    acc[dateStr] += sale.saleValue;
+    acc[dateStr].revenue += sale.saleValue;
+    acc[dateStr].count += 1;
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<string, { revenue: number, count: number }>);
 
   const dateInterval = eachDayOfInterval({ start: dateRange.from, end: dateRange.to });
 
@@ -38,7 +38,8 @@ function getSalesByPeriod(sales: ProcessedSale[], dateRange: DateRange): SalesBy
     const dateLabel = format(day, 'dd/MM');
     return {
       date: dateLabel,
-      Vendas: salesByDate[dateStr] || 0,
+      Vendas: salesByDate[dateStr]?.revenue || 0,
+      count: salesByDate[dateStr]?.count || 0,
     };
   });
 }

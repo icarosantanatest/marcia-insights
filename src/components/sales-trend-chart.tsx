@@ -9,6 +9,9 @@ interface SalesTrendChartProps {
 }
 
 export function SalesTrendChart({ data }: SalesTrendChartProps) {
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
   return (
     <ChartContainer config={{
         Vendas: {
@@ -24,14 +27,31 @@ export function SalesTrendChart({ data }: SalesTrendChartProps) {
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            tickFormatter={(value) => value.slice(0, 5)}
           />
           <YAxis 
             tick={false}
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip cursor={false} content={<ChartTooltipContent indicator="line" formatter={(value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value as number)} />} />
+          <Tooltip 
+            cursor={false} 
+            content={
+              <ChartTooltipContent
+                indicator="line"
+                formatter={(value, name, props) => {
+                  const { payload } = props;
+                  const salesCount = payload.count;
+                  return (
+                    <div className="flex flex-col gap-1">
+                       <span className="font-bold text-lg">{payload.date}</span>
+                       <span className="text-sm">Faturamento: {formatCurrency(value as number)}</span>
+                       <span className="text-sm">Vendas: {salesCount}</span>
+                    </div>
+                  )
+                }}
+              />
+            }
+          />
           <Line
             dataKey="Vendas"
             type="monotone"
